@@ -229,7 +229,11 @@ if __name__ == "__main__":
             for name, loader, weights in evals:
                 acc = misc.accuracy(algorithm, loader, weights, device)
                 results[name+'_acc'] = acc
+                metrics = misc.get_metrics(algorithm, loader, weights, device, name)
+                results.update(metrics)
 
+            # for readability in the outfile, limit the number of columns
+            results_keys = [k for k in results_keys if '_acc' in k or 'f1' in k]
             results_keys = sorted(results.keys())
             if results_keys != last_results_keys:
                 misc.print_row(results_keys, colwidth=12)

@@ -138,6 +138,7 @@ if __name__ == "__main__":
         out_splits.append((out, out_weights))
         if len(uda):
             uda_splits.append((uda, uda_weights))
+    print('splits done')
 
     train_loaders = [InfiniteDataLoader(
         dataset=env,
@@ -146,6 +147,7 @@ if __name__ == "__main__":
         num_workers=dataset.N_WORKERS)
         for i, (env, env_weights) in enumerate(in_splits)
         if i not in args.test_envs]
+    print('train loader done')
     
     uda_loaders = [InfiniteDataLoader(
         dataset=env,
@@ -167,6 +169,7 @@ if __name__ == "__main__":
         for i in range(len(out_splits))]
     eval_loader_names += ['env{}_uda'.format(i)
         for i in range(len(uda_splits))]
+    print('loaders complete')
 
     algorithm_class = algorithms.get_algorithm_class(args.algorithm)
     algorithm = algorithm_class(dataset.input_shape, dataset.num_classes,
@@ -176,10 +179,12 @@ if __name__ == "__main__":
         algorithm.load_state_dict(algorithm_dict)
 
     algorithm.to(device)
+    print('instantiated algo')
 
     train_minibatches_iterator = zip(*train_loaders)
     uda_minibatches_iterator = zip(*uda_loaders)
     checkpoint_vals = collections.defaultdict(lambda: [])
+    print('iterators done')
 
     steps_per_epoch = min([len(env)/hparams['batch_size'] for env,_ in in_splits])
 
@@ -202,6 +207,7 @@ if __name__ == "__main__":
 
     last_results_keys = None
     for step in range(start_step, n_steps):
+        print('step', step)
         step_start_time = time.time()
         minibatches_device = [(x.to(device), y.to(device))
             for x,y in next(train_minibatches_iterator)]

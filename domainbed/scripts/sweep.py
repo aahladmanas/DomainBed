@@ -69,7 +69,7 @@ class Job:
     def launch(jobs, launcher_fn):
         print('Launching...')
         jobs = jobs.copy()
-        np.random.shuffle(jobs)
+        # np.random.shuffle(jobs)
         print('Making job directories:')
         for job in tqdm.tqdm(jobs, leave=False):
             os.makedirs(job.output_dir, exist_ok=True)
@@ -88,10 +88,10 @@ def all_test_env_combinations(n):
     """For a dataset with n >= 3 envs, return all combinations of 1 and 2 test
     envs."""
     assert(n >= 3)
-    for i in range(n):
-        yield [i]
-        # for j in range(i+1, n):
-            # yield [i, j]
+    for i in reversed(range(n)):
+        # yield [i]
+        for j in reversed(range(i+1, n)):
+            yield [i, j]
 
 def make_args_list(n_trials, dataset_names, algorithms, n_hparams, steps,
     data_dir, hparams):

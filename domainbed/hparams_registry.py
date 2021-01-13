@@ -95,7 +95,7 @@ def _hparams(algorithm, dataset, random_seed):
 
     if dataset in SMALL_IMAGES:
         _hparam('batch_size', 64, lambda r: int(2**r.uniform(3, 9)) )
-    elif algorithm == 'ARM':
+    elif algorithm == 'ARM' or dataset == "WILDSCamelyon":
         _hparam('batch_size', 8, lambda r: 8)
     elif dataset == 'DomainNet':
         _hparam('batch_size', 32, lambda r: int(2**r.uniform(3, 5)) )

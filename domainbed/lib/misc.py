@@ -12,8 +12,11 @@ from shutil import copyfile
 
 import numpy as np
 import torch
+import torch.nn as nn
 import tqdm
 from collections import Counter
+from pytorch_lightning.metrics.classification import F1
+from pytorch_lightning.metrics.functional.classification import auroc
 
 def make_weights_for_balanced_classes(dataset):
     counts = Counter()
@@ -161,14 +164,15 @@ def get_metrics(network, loader, weights, device, name, mode='full'):
 
     network.eval()
     with torch.no_grad():
-        t = tqdm(iter(loader), leave=False, total=len(loader))
-        for i, data in enumerate(t):
+        # t = tqdm(iter(loader), leave=False, total=len(loader))
+        for i, data in enumerate(iter(loader)):
             x, y = data
             if mode=='skip' and i >= 100:
                 break
             x = x.to(device)
             y = y.to(device)
-            p = sigmoid(network.predict(x))
+            # TODO: only works for 2 classes and y label is a single number 0 or 1
+            p = sigmoid(network.predict(x)[:, 1])
             ys.append(y)
             ps.append(p)
             if weights is None:
@@ -177,9 +181,11 @@ def get_metrics(network, loader, weights, device, name, mode='full'):
                 batch_weights = weights[weights_offset : weights_offset + len(x)]
                 weights_offset += len(x)
             batch_weights = batch_weights.to(device)
-            strict_correct += ((p.gt(.5) == y).all().float() * batch_weights.reshape((-1, 1))).sum().item()
-            correct += ((p.gt(.5) == y).float() * batch_weights.reshape((-1, 1))).sum().item()
-            total += p.size(0) * p.size(1)
+            # strict_correct += ((p.gt(.5) == y).all().float() * batch_weights.reshape((-1, 1))).sum().item()
+            # correct += ((p.gt(.5) == y).float() * batch_weights.reshape((-1, 1))).sum().item()
+            correct += ((p.gt(.5) == y).float()).sum().item()
+            # TODO: changed for binary
+            total += p.size(0)# * p.size(1)
             strict_total += batch_weights.sum().item()
         ps = torch.cat(ps).to(device)
         ys = torch.cat(ys).to(device)
@@ -189,16 +195,19 @@ def get_metrics(network, loader, weights, device, name, mode='full'):
         aucs = []
         micro_f1 = []
         macro_f1 = []
-        for d in range(ps.size(1)):
+        for d in range(1):#range(ps.size(1)):
             micro = F1(num_classes=2, average='micro')
             macro = F1(num_classes=2, average='macro')
-            micro_f1.append(micro(ps[:, d].gt(.5).cpu().long(), ys[:, d].cpu().long()).item())
-            macro_f1.append(macro(ps[:, d].gt(.5).cpu().long(), ys[:, d].cpu().long()).item())
-            aucs.append(auroc(ps[:, d], ys[:, d]).item())
+            micro_f1.append(micro(ps.gt(.5).cpu().long(), ys.cpu().long()).item())
+            macro_f1.append(macro(ps.gt(.5).cpu().long(), ys.cpu().long()).item())
+            aucs.append(auroc(ps, ys).item())
+            # micro_f1.append(micro(ps[:, d].gt(.5).cpu().long(), ys[:, d].cpu().long()).item())
+            # macro_f1.append(macro(ps[:, d].gt(.5).cpu().long(), ys[:, d].cpu().long()).item())
+            # aucs.append(auroc(ps[:, d], ys[:, d]).item())
     network.train()
     results = {
         f'{name}_acc': correct / total,
-        f'{name}_strict_acc': strict_correct / strict_total,
+        # f'{name}_strict_acc': strict_correct / strict_total,
         f'{name}_auc': aucs,
         f'{name}_micro_f1': micro_f1,
         f'{name}_macro_f1': macro_f1,

@@ -346,12 +346,12 @@ class WILDSCamelyon(WILDSDataset):
             dataset, "hospital", test_envs, hparams['data_augmentation'], hparams)
         
 
-class WILDSFMoW(WILDSDataset):
-    ENVIRONMENTS = [ "region_0", "region_1", "region_2", "region_3",
-            "region_4", "region_5"]
-    def __init__(self, root, test_envs, hparams):
-        dataset = FMoWDataset(root_dir=root)
-        super().__init__(
-            dataset, "region", test_envs, hparams['data_augmentation'], hparams)
+# class WILDSFMoW(WILDSDataset):
+#     ENVIRONMENTS = [ "region_0", "region_1", "region_2", "region_3",
+#             "region_4", "region_5"]
+#     def __init__(self, root, test_envs, hparams):
+#         dataset = FMoWDataset(root_dir=root)
+#         super().__init__(
+#             dataset, "region", test_envs, hparams['data_augmentation'], hparams)
 
-dataset = WILDSFMoW("/checkpoint/dlp/datasets_new/", [0], {"data_augmentation": True})
+# dataset = WILDSFMoW("/misc/vlgscratch5/RanganathGroup/lily/nope/dlp/datasets_new/", [0], {"data_augmentation": True})

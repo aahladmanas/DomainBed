@@ -203,7 +203,7 @@ if __name__ == "__main__":
             "model_dict": algorithm.cpu().state_dict()
         }
         torch.save(save_dict, os.path.join(args.output_dir, filename))
-
+        algorithm.to(device)
 
     last_results_keys = None
     for step in range(start_step, n_steps):

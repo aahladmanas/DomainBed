@@ -53,7 +53,7 @@ def hpc_launcher(commands):
     now = datetime.now()
     date_time = now.strftime("%m-%d-%Y-%H-%M-%S")
     with open('jobs_{}.txt'.format(date_time), 'w') as f:
-        f.write('\n'.join(commands) + '\n')
+        f.write(' --save_model_every_checkpoint \n'.join(commands) + ' --save_model_every_checkpoint \n')
     num_tasks = len(commands)
     print("num_tasks", num_tasks)
     with open('submit_{}.sh'.format(date_time), 'w') as f:

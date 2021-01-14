@@ -1,2 +1,7 @@
 __pycache__
 domainbed/facebook.py
+slurm-*
+outputs/*
+submit_*
+jobs_*
+nohup.out

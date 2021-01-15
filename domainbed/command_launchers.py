@@ -64,6 +64,8 @@ def hpc_launcher(commands):
         f.write("#SBATCH --gres=gpu:1\n")
         f.write("#SBATCH --mem=32GB\n")
         f.write("#SBATCH --time=2-00:00:00\n")
+        exclude_string = "hpc1,hpc2,hpc3,hpc4,hpc5,hpc6,hpc7,hpc8,hpc9,vine3,vine4,vine6,vine11,vine12,rose7,rose8,rose9,lion17,lion3"
+        f.write("#SBATCH --exclude={}\n".format(exclude_string))
         f.write("srun $(head -n $SLURM_ARRAY_TASK_ID jobs_{}.txt | tail -n 1)".format(date_time))
     subprocess.call("sbatch -vv submit_{}.sh".format(date_time), shell=True)
 
